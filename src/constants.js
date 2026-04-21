@@ -1,1 +1,1 @@
-export const DB_NAME = "videotube"
+// write the constants here
