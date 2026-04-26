@@ -1,1 +1,1 @@
-// write the constants here
+export const DB_NAME = "demo dataset";
