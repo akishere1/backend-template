@@ -1,56 +1,78 @@
-# Backend Template
+# Production-Ready Backend Template
 
-This repository contains a structured, production-ready backend project template for a Node.js/Express application. It is designed to save time by providing an organized folder structure so you don't have to create it from scratch every time you start a new backend project.
+This repository provides a strongly structured, production-ready backend boilerplate for Node.js/Express applications. It goes beyond simple CRUD functionality by integrating core production concerns such as logging, security, graceful shutdown, environment validation, and Docker support right out of the box.
+
+## Core Features Included
+
+- **Robust Architecture**: Separation of concerns utilizing Controllers, Services, Repositories, Models, and Routes.
+- **Environment Management**: Strict environment variable validation using `Zod` (`src/config/env.js`), so your app fails fast if configured incorrectly.
+- **Logging System**: Centralized logging using `Winston` with console formatting and file transports (`error.log`, `combined.log`). Request logging powered by `Morgan`.
+- **Security Middlewares**: Secure HTTP headers via `Helmet`, NoSQL injection prevention via `express-mongo-sanitize`, and API rate limiting via `express-rate-limit`.
+- **Centralized Error Handling**: Global error catching middleware that translates errors into standard `ApiError` format and returns a predictable `ApiResponse`.
+- **Health Check API**: Dedicated `/api/v1/healthcheck` endpoint to verify database connectivity and server uptime.
+- **Graceful Shutdown**: Properly handles `SIGINT` and `SIGTERM` signals, closing the HTTP server and database connections safely before exiting.
+- **Docker Support**: Built-in multi-stage `Dockerfile`, `.dockerignore`, and a `docker-compose.yml` for local development.
 
 ## Directory Structure
 
-Here is a breakdown of the `src/` folder and why each directory/file is needed:
+Here is a breakdown of the `src/` folder:
 
 ```text
 src/
-├── controllers/
-├── db/
-├── middlewares/
-├── models/
-├── routes/
-├── utils/
-├── app.js
-├── constants.js
-└── index.js
+├── config/        # Environment and configuration loaders (env.js)
+├── controllers/   # Request/Response handling logic
+├── db/            # Database connection initialization
+├── middlewares/   # Custom Express middlewares (error handling, file upload)
+├── models/        # Database schemas (Mongoose)
+├── repositories/  # Data access layer abstraction (optional but recommended)
+├── routes/        # API endpoint definitions mapping to controllers
+├── services/      # Core business logic abstracted from controllers
+├── utils/         # Reusable utilities (logger, API response/error classes)
+├── validations/   # Request payload validation schemas (Zod/Joi)
+├── app.js         # Express app setup and middleware integration
+├── constants.js   # Project-wide constants (DB name, etc.)
+└── index.js       # Main entry point, DB connection, server start
 ```
 
-### Folders and Their Purpose
+## Getting Started
 
-*   **`controllers/`**: 
-    Contains the core business logic of the application. The controller functions take the incoming request (`req`), process it, interact with the necessary models, and send back a response (`res`). Separating this from routes ensures clean and manageable code.
-    
-*   **`db/`**: 
-    Handles the database connection logic. This is where you configure how your application connects to the database (e.g., MongoDB, PostgreSQL) so that `index.js` can simply import and call the connection function.
-    
-*   **`middlewares/`**: 
-    Functions that run between receiving a route request and calling the actual controller. Used for operations like authentication, route protection, parsing data, logging, or handling file uploads (e.g., `multer`).
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Copy `.env.example` to `.env` and fill in your variables:
+   ```bash
+   cp .env.example .env
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-*   **`models/`**: 
-    Contains database schemas, model definitions, and schema methods/plugins. This is where you define the structure of the data that will be stored in your database (e.g., using Mongoose for MongoDB or Sequelize for SQL).
+## Standard API Response
 
-*   **`routes/`**: 
-    Defines the API endpoints and maps them to their respective functions in the `controllers`. It acts as an entry point for specific HTTP methods (`GET`, `POST`, `PUT`, `DELETE`).
+All API endpoints return data in a standardized format:
 
-*   **`utils/`**: 
-    Stores reusable utility methods, custom error handling classes (like `ApiError`), custom response formatters (like `ApiResponse`), wrappers (like `asyncHandler`), and other repeated helper functions.
+```json
+{
+  "statusCode": 200,
+  "data": {},
+  "message": "Success message",
+  "success": true
+}
+```
 
-### Core Files
+## Docker
 
-*   **`app.js`**: 
-    Configuration file for the Express application. This is where you define app-level settings, configure CORS, and apply global middlewares (JSON parsing, URL encoding, static folders) before importing and using routes.
+To run the application using Docker Compose (includes MongoDB):
 
-*   **`constants.js`**: 
-    Stores configuration constants (like the Database Name, Enums or standard default configurations). This helps avoid hardcoding magic strings and numbers throughout the codebase.
-
-*   **`index.js`**: 
-    The main entry point of the application. It imports the configured `app`, connects to the database using the function from `db/`, and starts the server listening on a port.
+```bash
+docker-compose up --build
+```
 
 ---
 
-**Note**: To ensure that Git tracks these initially empty configuration directories (e.g., `controllers`, `middlewares`, `models`, `routes`), `.gitkeep` files have been added to them. When you start adding your actual files to these directories, the `.gitkeep` files can be safely ignored or removed.
-**Note**: credit goes to chai aur code
+**Note**: To ensure that Git tracks these initially empty configuration directories (e.g., `controllers`, `services`, `repositories`), `.gitkeep` files have been added to them. When you start adding your actual files to these directories, the `.gitkeep` files can be safely ignored or removed.
+
+**Credits**: Originally inspired by Chai aur Code, hardened with production-grade practices.
