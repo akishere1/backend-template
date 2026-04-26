@@ -63,6 +63,25 @@ All API endpoints return data in a standardized format:
 }
 ```
 
+## How to Use & Refactor This Template
+
+This template is designed to scale. When building a new feature (e.g., a `User` module), follow this flow to keep the code clean and maintainable:
+
+1. **Define the Model (`src/models/`)**
+   Create a Mongoose schema for your entity (e.g., `user.model.js`).
+2. **Create Validations (`src/validations/`)**
+   Use `Zod` or `Joi` to define exactly what the request body/params should look like (e.g., `user.validation.js`).
+3. **Write the Business Logic (`src/services/` & `src/repositories/`)**
+   *(Optional but recommended for large apps)*: Keep controllers thin. Write your database queries in the repository and your business rules in the service layer.
+4. **Build the Controller (`src/controllers/`)**
+   Create `user.controller.js`. Use the `asyncHandler` utility to wrap your functions so you don't have to write `try-catch` blocks everywhere. Use `ApiError` for throwing errors and `ApiResponse` for sending success responses.
+5. **Define the Routes (`src/routes/`)**
+   Create `user.routes.js`. Import your controller functions and apply any necessary middlewares (like authentication or file uploads).
+6. **Register the Routes (`src/app.js`)**
+   Finally, import your new route in `app.js` and mount it (e.g., `app.use("/api/v1/users", userRouter);`).
+
+By adhering to this structure, your codebase will remain predictable, making it incredibly easy for any developer to jump in and refactor code without hunting down scattered logic.
+
 ## Docker
 
 To run the application using Docker Compose (includes MongoDB):
